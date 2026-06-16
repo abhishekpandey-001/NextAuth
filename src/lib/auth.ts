@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import connectDb from "./db";
 import User from "@/models/user.model";
 import bcrypt from "bcryptjs";
+import Google from "next-auth/providers/google";
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -27,6 +28,10 @@ const authOptions: NextAuthOptions = {
           throw new Error("User not found");
         }
 
+        if (!user.password) {
+          throw new Error("Please sign in with Google");
+        }
+
         const isMatched = await bcrypt.compare(password, user.password);
         if (!isMatched) {
           throw new Error("Wrong Email or Password");
@@ -40,9 +45,37 @@ const authOptions: NextAuthOptions = {
         };
       },
     }),
+
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
-  //all the user details and info we are returning goes to user as params in calbacks jwt
+
   callbacks: {
+    async signIn({ account, user }) {
+      if (account?.provider === "google") {
+        await connectDb();
+
+        let existingUser = await User.findOne({
+          email: user.email,
+        });
+
+        if (!existingUser) {
+          existingUser = await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+        }
+
+        user.id = existingUser._id.toString();
+      }
+
+      return true;
+    },
+
+    //all the user details and info we are returning goes to user as params in calbacks jwt
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -66,11 +99,11 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30*24*60*60*1000
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
-    signIn: '/login',
-    error: '/login'
+    signIn: "/login",
+    error: "/login",
   },
   secret: process.env.NEXT_AUTH_SECRET,
 };
