@@ -2,6 +2,7 @@
 
 
 import axios from "axios";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { SyntheticEvent, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
@@ -20,7 +21,7 @@ const Register = () => {
     try {
         const result = await axios.post('/api/auth/register', {name, email, password})
 
-        console.log(result)
+        router.push('/login')
     } catch (error) {
         console.log(error)
     }
@@ -100,6 +101,10 @@ const Register = () => {
           </div>
 
           <button
+            onClick={async ()=>{
+              await signIn('google', {callbackUrl: '/'})
+              
+            }}
             type="button"
             className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl py-3 text-white hover:border-zinc-700 transition"
           >

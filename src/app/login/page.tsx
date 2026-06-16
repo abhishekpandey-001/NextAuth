@@ -1,17 +1,14 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { SyntheticEvent, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
-  const session = useSession();
-
-  console.log(session?.data?.user)
 
   // Handling sign in function
   const handleSignIn = async (e: SyntheticEvent<HTMLFormElement>) => {
@@ -20,7 +17,9 @@ const Login = () => {
       const result = await signIn("credentials", {
         email,
         password,
+        callbackUrl: '/'
       });
+
     } catch (error) {
       console.log(error);
     }
@@ -93,6 +92,9 @@ const Login = () => {
           </div>
 
           <button
+            onClick={async ()=>{
+              await signIn('google', {callbackUrl: '/'})
+            }}
             type="button"
             className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl py-3 text-white hover:border-zinc-700 transition"
           >

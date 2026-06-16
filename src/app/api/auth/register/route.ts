@@ -6,6 +6,14 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password } = await req.json();
+
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { message: "All fields are required" },
+        { status: 400 },
+      );
+    }
+
     await connectDb();
     const existUser = await User.findOne({ email });
     if (existUser) {
@@ -23,14 +31,21 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    return NextResponse.json(user, { status: 201 });
+    return NextResponse.json(
+      { message: "User registered successfully" },
+      { status: 201 },
+    );
   } catch (error) {
-    return NextResponse.json({ message: error }, { status: 500 });
+    console.error("Registration Error:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }
