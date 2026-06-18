@@ -34,7 +34,7 @@ const Page = () => {
             <div className="h-16 w-16 rounded-full bg-amber-300 flex items-center justify-center text-black font-bold text-xl overflow-hidden">
               {data.user.image ? (
                 <Image
-                  src={data.user.image}
+                  src={data?.user?.image}
                   alt="User Image"
                   width={64}
                   height={64}
