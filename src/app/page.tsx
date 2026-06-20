@@ -2,21 +2,24 @@
 
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { CiEdit } from "react-icons/ci";
 
 const Page = () => {
   const { data } = useSession();
+  const router = useRouter()
 
   //Signout Logic
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSignOut = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       await signOut();
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
   return (
@@ -52,16 +55,20 @@ const Page = () => {
                 Welcome back to your dashboard
               </p>
             </div>
+            {/* Edit section */}
+            <CiEdit className="text-white ml-auto size-6 cursor-pointer" onClick={()=>router.push("/edit")}/>
           </div>
           {/* Actions */}
           <div className="mt-10 flex gap-7 items-center">
             <button className="px-5 py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 transition">
               View Profile
             </button>
-            <button className="px-5 py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition text-white"
-            onClick={handleSignOut}>
+            <button
+              className="px-5 py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition text-white"
+              onClick={handleSignOut}
+            >
               {loading && <div>Signing Out</div>}
-              {!loading  && <div>Sign Out</div>}
+              {!loading && <div>Sign Out</div>}
             </button>
           </div>
         </div>
